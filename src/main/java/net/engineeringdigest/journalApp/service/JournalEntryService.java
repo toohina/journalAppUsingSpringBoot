@@ -1,11 +1,14 @@
 package net.engineeringdigest.journalApp.service;
 
 import net.engineeringdigest.journalApp.entities.JournalEntry;
+import net.engineeringdigest.journalApp.entities.User;
 import net.engineeringdigest.journalApp.repository.JournalEntryRepository;
+import net.engineeringdigest.journalApp.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,22 +17,29 @@ public class JournalEntryService {
 
     @Autowired
     JournalEntryRepository journalEntryRepository;
-
-    public List<JournalEntry> findAll(){
-        return journalEntryRepository.findAll();
-    }
+    @Autowired
+    UserService userService;
 
     public Optional<JournalEntry> findById(ObjectId id){
         return journalEntryRepository.findById(id);
     }
 
-    //will be used for both saveEntry and editEntryById
     public void saveEntry(JournalEntry journalEntry){
         journalEntryRepository.save(journalEntry);
     }
 
-    public void deleteById(ObjectId id){
-        journalEntryRepository.deleteById(id);
+    public void saveEntryOfUser(JournalEntry journalEntry, String username) {
+        User user=userService.getByUserName(username);
+        journalEntry.setDate(LocalDateTime.now());
+        JournalEntry savedEntry=journalEntryRepository.save(journalEntry);
+        user.getJournalEntries().add(savedEntry);
+        userService.saveUser(user);
     }
 
+    public void deleteEntryWithIdAndUser(String username, ObjectId id) {
+        User user=userService.getByUserName(username);
+        user.getJournalEntries().removeIf(x->x.getId().equals(id));
+        userService.saveUser(user);
+        journalEntryRepository.deleteById(id);
+    }
 }

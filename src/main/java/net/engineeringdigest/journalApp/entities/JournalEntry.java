@@ -4,6 +4,7 @@ package net.engineeringdigest.journalApp.entities;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -14,6 +15,7 @@ import java.util.Date;
 
 @Document(collection="journal_entries")
 @Data
+@NoArgsConstructor
 //@Getter
 //@Setter
 public class JournalEntry {
